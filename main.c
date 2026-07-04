@@ -1,9 +1,18 @@
-#define RENDER_IMPLEMENTATION
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keycode.h>
+#include <stdio.h>
+#include <assert.h>
+#include <string.h>
+#include <sys/types.h>
+// #define RENDER_IMPLEMENTATION
 #include "./render.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
+#define BUFFER_CAP 1024
 
+char buffer[BUFFER_CAP] = {0};
+size_t buffer_size = 0;
 
 int main(void) {
     scc(SDL_Init(SDL_INIT_EVERYTHING));
@@ -19,19 +28,25 @@ int main(void) {
                 case SDL_QUIT: {
                     quit = true;
                 } break;
+
+                case SDL_TEXTINPUT: {
+                    const size_t source_len = strlen(event.text.text);
+                    assert( (BUFFER_CAP - buffer_size) >= source_len );
+                    memcpy(buffer + buffer_size, &event.text.text, source_len);
+                    buffer_size += source_len;
+                } break;
+
+                case SDL_KEYDOWN: {
+                     if (event.key.keysym.sym == SDLK_BACKSPACE)
+                    buffer_size -= 1;
+                } break;
             }
         }
 
         scc(SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF));
         scc(SDL_RenderClear(renderer));
 
-        render_text("Hello, World!", renderer, texture, 5, (Vec2) {0, 0});
-
-
-
-
-
-
+        render_text_sized(buffer, buffer_size, renderer, texture, 5, (Vec2) {0, 0});
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
