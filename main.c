@@ -1,41 +1,9 @@
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_rect.h>
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_surface.h>
-#include <SDL2/SDL_video.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <time.h>
-#include <unistd.h>
+#define RENDER_IMPLEMENTATION
+#include "./render.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
-void scc(int code) {
-    if (code < 0) {
-        fprintf(stderr, "SDL ERROR: %s\n", SDL_GetError());
-        exit(1);
-    }
-    return;
-}
-
-void *scp(void *ptr) {
-    if (ptr == NULL) {
-        fprintf(stderr, "SDL ERROR: %s\n", SDL_GetError());
-        exit(1);
-    }
-    return ptr;
-}
-
-SDL_Texture *load_file_as_texture(const char *filepath, SDL_Renderer *renderer) {
-    SDL_Surface *surface = scp(IMG_Load(filepath));
-    return scp(SDL_CreateTextureFromSurface(renderer, surface));
-}
 
 int main(void) {
     scc(SDL_Init(SDL_INIT_EVERYTHING));
@@ -57,12 +25,13 @@ int main(void) {
         scc(SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF));
         scc(SDL_RenderClear(renderer));
 
-        scc(SDL_RenderCopy(renderer, texture, NULL, &(SDL_Rect) {
-                    .x = 0,
-                    .y = 0,
-                    .w = 128 * 5,
-                    .h = 64 * 5
-                }));
+        render_text("Hello, World!", renderer, texture, 5, (Vec2) {0, 0});
+
+
+
+
+
+
 
         SDL_RenderPresent(renderer);
         SDL_Delay(16);
