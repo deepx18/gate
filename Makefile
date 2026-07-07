@@ -3,7 +3,7 @@ FLAGS = -Wall -Wextra
 LIBS = `sdl2-config --cflags --libs` -lSDL2_ttf -lSDL2_image -lm
 
 te: main.c 
-	$(CC) $(FLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(FLAGS) -o $@ render.c buffer.c $^ $(LIBS)
 
 run: te
 	./te
