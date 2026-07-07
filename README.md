@@ -6,3 +6,7 @@ A simple basic yet functional text editor for learning purposes.
 $ make -B
 $ ./gate
 ```
+
+## Current Features
+    - Basic insert and delete.
+    - Zoom in and out using (CTRL+) and (CTRL-).

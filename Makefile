@@ -6,4 +6,4 @@ gate: main.c
 	$(CC) $(FLAGS) -o $@ render.c buffer.c $^ $(LIBS)
 
 run: gate
-	./te
+	./gate
