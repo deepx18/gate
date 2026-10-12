@@ -1,9 +1,9 @@
 CC = gcc 
-FLAGS = -Wall -Wextra
+FLAGS = -Wall -Wextra -ggdb
 LIBS = `sdl2-config --cflags --libs` -lSDL2_ttf -lSDL2_image -lm
 
-gate: main.c 
-	$(CC) $(FLAGS) -o $@ render.c buffer.c $^ $(LIBS)
+gate:
+	$(CC) $(FLAGS) -o ./build/$@ ./src/render.c ./src/buffer.c ./src/main.c $(LIBS)
 
 run: gate
-	./gate
+	./build/gate
