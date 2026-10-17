@@ -24,5 +24,6 @@ void buffer_insert_newline(Lines *buf, Context *ctx);
 void buffer_init(Lines *buf);
 void buffer_new_line(Lines *buf);
 void buffer_load_file(Lines *buf, const char *file_path);
+void buffer_save_file(Lines *buf, const char *file_path);
 
 #endif // BUFFER_H_

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <wchar.h>
 
 #define BUFFER_CAP 1024
 
@@ -34,8 +36,13 @@ void buffer_delete_at(Line *line, size_t *buffer_cursor, int offset) {
     if (line->size <= 0) return;
 
     if (line->size == *buffer_cursor) {
-        line->size -= 1;
-        *buffer_cursor = line->size;
+        if (line->size > 0) {
+            line->size -= 1;
+            memset(line->items + *buffer_cursor - 1, '\0', 1);
+            *buffer_cursor = line->size;
+        }
+    } else if (*buffer_cursor == 0) {
+        // TODO: Remove line when in the begining of the line...
     } else {
         strncpy(line->items + *buffer_cursor - 1 + offset, line->items + *buffer_cursor + offset, line->size - *buffer_cursor);
         line->size -= 1;
@@ -66,18 +73,28 @@ void buffer_init(Lines *buf) {
     /* buf->count++; */
 }
 
+static void buffer_grow(Lines *buf) {
+    buf->capacity += 256;
+    buf->items = realloc(buf->items, buf->capacity);
+}
+
 void buffer_new_line(Lines *buf) {
 
-    assert(buf->count < buf->capacity);
+    if (buf->count < buf->capacity) {
+        buffer_grow(buf);
+    }
+
     buf->items[buf->count].items = malloc(BUFFER_CAP);
     buf->items[buf->count].capacity = BUFFER_CAP;
     buf->items[buf->count].size = 0;
+    memset(buf->items[buf->count].items, '\0', BUFFER_CAP);
     buf->count++;
 }
 
 
 int get_file_length(const char *file_path) {
     FILE *file = fopen(file_path, "r");
+    if (file == NULL) exit(420);
     fseek(file, 0, SEEK_END);
     int length = ftell(file);
     fclose(file);
@@ -86,22 +103,23 @@ int get_file_length(const char *file_path) {
 
 int count_file_lines(const char *file_path, size_t length) {
     FILE *file = fopen(file_path, "r");
+    if (file == NULL) exit(420);
     char buf[length];
     int counter = 0;
-    for(;;)
-    {
+    //for(;;)
+    //{
         size_t res = fread(buf, 1, length, file);
         if (ferror(file))
             return -1;
 
-        int i;
+        size_t i;
         for(i = 0; i < res; i++)
             if (buf[i] == '\n')
                 counter++;
 
-        if (feof(file))
-            break;
-    }
+        //if (feof(file))
+        //    break;
+    //}
     fclose(file);
     return counter;
 }
@@ -114,20 +132,23 @@ void buffer_load_file(Lines *buf, const char *file_path) {
     int lines_count = count_file_lines(file_path, length);
 
     FILE *file = fopen(file_path, "r");
-
+    if (file == NULL) exit(69);
     /* char *file_buf = malloc(sizeof(char) * length + 1); */
     /* memset(file_buf, '\0', length + 1); */
     /* fread(file_buf, sizeof(char), length, file); */
     // printf("%s\n", file_buf);
 
-    char line_buf[MAX_LINE_LEN];
-    int line = 0;
+    char line_buf[MAX_LINE_LEN] = {0};
+    // int line = 0;
 
     printf("%d\n", lines_count);
-    buf->capacity = lines_count;
+    buf->capacity = lines_count > 0 ? lines_count : 1;
     buf->items = malloc(sizeof(Line) * buf->capacity);
     buf->count = 0;
 
+    if (lines_count == 0) {
+         buffer_new_line(buf);
+    }
     while(fgets( line_buf, MAX_LINE_LEN, file)) {
 
         buf->items[buf->count].items = malloc(MAX_LINE_LEN);
@@ -137,10 +158,27 @@ void buffer_load_file(Lines *buf, const char *file_path) {
         memcpy( buf->items[buf->count].items, line_buf, MAX_LINE_LEN);
         buf->count++;
 
+        memset(line_buf, '\0', MAX_LINE_LEN);
     }
 
     fclose(file);
     // free(file_buf);
     // (void)buf;
     return;
+}
+
+
+void buffer_save_file(Lines *buf, const char *file_path) {
+    FILE *file = fopen(file_path, "w");
+    fprintf(file, "");
+    fclose(file);
+
+    file = fopen(file_path, "a");
+
+    for (size_t i = 0; i < buf->count; i++) {
+        fwrite(buf->items[i].items, 1, buf->items[i].size, file);
+        fwrite("\n", 1, 1, file);
+    }
+
+    fclose(file);
 }

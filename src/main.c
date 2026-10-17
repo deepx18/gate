@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <stdbool.h>
 #include <time.h>
@@ -25,11 +26,32 @@ void render_lines(void) {
     }
 }
 
-int main(void) {
+void parse_args(int argc, char *argv[], char *file_path) {
+    if (argc < 2) {
+        fprintf(stderr, "No file provided!\n");
+        fprintf(stderr, "Usage:\n");
+        fprintf(stderr, "\tgate <file_path>\n");
+        exit(69);
+    }
 
-    scc(SDL_Init(SDL_INIT_EVERYTHING));
+    if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
+        printf("Usage:\n");
+        printf("\tgate <file_path>\n");
+        exit(68);
+    }
 
-    buffer_load_file(&buf, __FILE__);
+    memset(file_path, '\0', 100);
+    strcpy(file_path, argv[1]);
+}
+
+int main(int argc, char *argv[]) {
+
+    char *file_path = malloc(100);
+    parse_args( argc, argv, file_path);
+
+    scc(SDL_Init(SDL_INIT_VIDEO));
+
+    buffer_load_file(&buf, file_path);
 
     SDL_Window *window = scp(SDL_CreateWindow("Steins Gate", 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_RESIZABLE));
 
@@ -76,6 +98,12 @@ int main(void) {
 
                          case SDLK_6: {
                             if ( event.key.keysym.mod & KMOD_CTRL && ctx.scale > 1) ctx.scale -= 1;
+                        } break;
+
+                        case SDLK_s: {
+                            if (event.key.keysym.mod & KMOD_CTRL) {
+                                buffer_save_file(&buf, file_path);
+                            }
                         } break;
 
 

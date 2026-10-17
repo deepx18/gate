@@ -84,6 +84,7 @@ void render_text(Context *ctx, const char *text, Vec2 pos) {
 }
 
 void render_cursor(Context *ctx, const char *text, size_t bs) {
+    (void) bs;
     SDL_Rect cursor = (SDL_Rect) {
         .x = (int) ctx->cursor.x * FONT_CHAR_WIDTH * ctx->scale,
         .y = (int) ctx->cursor.y * FONT_CHAR_HEIGHT * ctx->scale,

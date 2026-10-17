@@ -6,4 +6,4 @@ gate:
 	$(CC) $(FLAGS) -o ./build/$@ ./src/render.c ./src/buffer.c ./src/main.c $(LIBS)
 
 run: gate
-	./build/gate
+	./build/gate ./test.txt
